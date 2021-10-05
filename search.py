@@ -86,18 +86,69 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
+    # textbook p167
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # define a node for the start state
+    node = {'state': problem.getStartState(), 'cost': 0}
+    # goal test
+    if problem.isGoalState(node['state']):
+        return []
+    # construct a priority queue ordered by f
+    frontier = util.PriorityQueue()
+
+
+
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
+    # textbook p176
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # define a node for the start state
+    node = {'state': problem.getStartState(), 'cost': 0}
+    # goal test
+    if problem.isGoalState(node['state']):
+        return []
+    # construct a FIFO queue as frontier
+    frontier = util.Queue()
+    # adds start state to the FIFO queue
+    frontier.push(node)
+
+    # construct a set for explored nodes(states)
+    explored = set()
+
+    while True:
+        # search failed -> no path to goal at all
+        if frontier.isEmpty():
+            raise Exception("Search Failed")
+
+        # explore the first state in the queue
+        node = frontier.pop()
+        explored.add(node['state'])
+        # child -> triple (successor, action, stepCost), children -> list of child
+        children = problem.getSuccessors(node['state'])
+        # explore all un-visited child states
+        for child in children:
+            child_state = child[0]
+            if child_state not in explored:
+                child_node = {'state': child_state, 'action': child[1], 'cost': child[2], 'parent': node}
+                if problem.isGoalState(child_state):
+                    actions = []
+                    node = child_node
+                    # traverse back to the parent
+                    while 'parent' in node:
+                        actions.append(node['action'])
+                        node = node['parent']
+                    actions.reverse()
+                    return actions
+                frontier.push(child_node)
+    # util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    # util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
     """
