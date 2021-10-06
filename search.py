@@ -72,6 +72,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -91,8 +92,8 @@ def depthFirstSearch(problem):
     node = {'state': problem.getStartState(), 'cost': 0}
     if problem.isGoalState(node['state']):
         return []
-    frontier = util.PriorityQueue()
-    frontier.push(node, 0)
+    frontier = util.Stack()
+    frontier.push(node)
 
     explored_state = set()
     explored_path_cost = {}
@@ -121,7 +122,7 @@ def depthFirstSearch(problem):
                 explored_path_cost[child_state] = child_path_cost
 
                 child_node = {'state': child_state, 'action': child[1], 'cost': child_path_cost, 'parent': node}
-                frontier.push(child_node, child_path_cost)
+                frontier.push(child_node)
 
 
 def breadthFirstSearch(problem):
@@ -160,7 +161,40 @@ def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
 
-    # util.raiseNotDefined()
+    node = {'state': problem.getStartState(), 'cost': 0}
+    if problem.isGoalState(node['state']):
+        return []
+    frontier = util.PriorityQueue()
+    frontier.push(node, 0)
+
+    explored_state = set()
+    explored_path_cost = {}
+
+    while True:
+        if frontier.isEmpty():
+            raise Exception("Search Failed")
+        node = frontier.pop()
+        if problem.isGoalState(node['state']):
+            actions = []
+            # traverse back to the parent
+            while 'parent' in node:
+                actions.append(node['action'])
+                node = node['parent']
+            actions.reverse()
+            return actions
+
+        children = problem.getSuccessors(node['state'])
+        for child in children:
+            child_state = child[0]
+            child_path_cost = child[2]
+            child_state_explored = child_state in explored_state
+            if (not child_state_explored) or child_path_cost < explored_path_cost[child_state]:
+                if not child_state_explored:
+                    explored_state.add(child_state)
+                explored_path_cost[child_state] = child_path_cost
+
+                child_node = {'state': child_state, 'action': child[1], 'cost': child_path_cost, 'parent': node}
+                frontier.push(child_node, child_path_cost)
 
 def nullHeuristic(state, problem=None):
     """
