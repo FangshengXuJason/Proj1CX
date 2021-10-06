@@ -87,54 +87,14 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    # textbook p167
     "*** YOUR CODE HERE ***"
     node = {'state': problem.getStartState(), 'cost': 0}
     if problem.isGoalState(node['state']):
         return []
     frontier = util.Stack()
     frontier.push(node)
-
     explored_state = set()
-    explored_path_cost = {}
 
-    while True:
-        if frontier.isEmpty():
-            raise Exception("Search Failed")
-        node = frontier.pop()
-        if problem.isGoalState(node['state']):
-            actions = []
-            # traverse back to the parent
-            while 'parent' in node:
-                actions.append(node['action'])
-                node = node['parent']
-            actions.reverse()
-            return actions
-
-        children = problem.getSuccessors(node['state'])
-        for child in children:
-            child_state = child[0]
-            child_path_cost = child[2]
-            child_state_explored = child_state in explored_state
-            if (not child_state_explored) or child_path_cost < explored_path_cost[child_state]:
-                if not child_state_explored:
-                    explored_state.add(child_state)
-                explored_path_cost[child_state] = child_path_cost
-
-                child_node = {'state': child_state, 'action': child[1], 'cost': child_path_cost, 'parent': node}
-                frontier.push(child_node)
-
-
-def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    # textbook p176
-    "*** YOUR CODE HERE ***"
-    node = {'state': problem.getStartState(), 'cost': 0}
-    if problem.isGoalState(node['state']):
-        return []
-    frontier = util.Queue()
-    frontier.push(node)
-    explored_state = set()
     while True:
         if frontier.isEmpty():
             raise Exception("Search Failed")
@@ -155,10 +115,45 @@ def breadthFirstSearch(problem):
                     actions.reverse()
                     return actions
                 frontier.push(child_node)
-    # util.raiseNotDefined()
+
+
+
+def breadthFirstSearch(problem):
+    """Search the shallowest nodes in the search tree first."""
+    # textbook p176
+    "*** YOUR CODE HERE ***"
+    node = {'state': problem.getStartState(), 'cost': 0}
+    if problem.isGoalState(node['state']):
+        return []
+    frontier = util.Queue()
+    frontier.push(node)
+    explored_state = set()
+
+    while True:
+        if frontier.isEmpty():
+            raise Exception("Search Failed")
+        node = frontier.pop()
+        explored_state.add(node['state'])
+        children = problem.getSuccessors(node['state'])
+        for child in children:
+            child_state = child[0]
+            if child_state not in explored_state:
+                child_node = {'state': child_state, 'action': child[1], 'cost': child[2], 'parent': node}
+                if problem.isGoalState(child_state):
+                    actions = []
+                    node = child_node
+                    # traverse back to the parent
+                    while 'parent' in node:
+                        actions.append(node['action'])
+                        node = node['parent']
+                    actions.reverse()
+                    return actions
+                frontier.push(child_node)
 
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
+    """Search the node of least total cost first.
+        read textbook p167
+    """
     "*** YOUR CODE HERE ***"
 
     node = {'state': problem.getStartState(), 'cost': 0}
