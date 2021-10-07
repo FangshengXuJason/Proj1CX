@@ -19,6 +19,7 @@ Pacman agents (in searchAgents.py).
 
 import util
 
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -73,6 +74,101 @@ def tinyMazeSearch(problem):
     return  [s, s, w, s, w, w, s, w]
 
 
+def depthFirstSearch(problem):
+    """
+    Search the deepest nodes in the search tree first.
+    """
+    return unit_cost_search(problem, util.Stack())
+
+
+def breadthFirstSearch(problem):
+    """Search the shallowest nodes in the search tree first."""
+    return unit_cost_search(problem, util.Queue())
+
+
+def uniformCostSearch(problem):
+    """Search the node of least total cost first.
+        read textbook p167
+    """
+    # return consider_cost_search(problem, nullHeuristic)
+    return aStarSearch(problem, nullHeuristic)
+
+def nullHeuristic(state, problem=None):
+    """
+    A heuristic function estimates the cost from the current state to the nearest
+    goal in the provided SearchProblem.  This heuristic is trivial.
+    """
+    return 0
+
+def aStarSearch(problem, heuristic=nullHeuristic):
+    """Search the node that has the lowest combined cost and heuristic first."""
+    "*** YOUR CODE HERE ***"
+    node = {'state': problem.getStartState(), 'cost': 0}
+    if problem.isGoalState(node['state']):
+        return []
+    frontier = util.PriorityQueue()
+    frontier.push(node, 0)
+    explored_nodes = {}  # node -> current cost
+
+    while True:
+        if frontier.isEmpty():
+            raise Exception("Search Failed")
+
+        node = frontier.pop()
+
+        is_new_state = node['state'] not in explored_nodes
+
+        if is_new_state or node['cost'] < explored_nodes[node['state']]:
+            explored_nodes[node['state']] = node['cost']
+            # goal state test
+            if problem.isGoalState(node['state']):
+                return get_path(node)
+            else:
+                children = problem.getSuccessors(node['state'])
+                for child in children:
+                    new_cost = child[2] + node['cost']
+                    child_node = {'state': child[0], 'action': child[1], 'cost': new_cost, 'parent': node}
+
+                    # check whether the child_node is explored
+                    child_explored = child[0] in explored_nodes and new_cost >= explored_nodes.get(child[0])
+                    if not child_explored:
+                        h_result = heuristic(child_node['state'], problem)
+                        frontier.update(child_node, new_cost + h_result)
+    return []
+
+
+def consider_cost_search(problem, heuristic=nullHeuristic):
+
+    node = {'state': problem.getStartState(), 'cost': 0}
+    if problem.isGoalState(node['state']):
+        return []
+    frontier = util.PriorityQueue()
+    frontier.push(node, 0)
+    explored_nodes = {}  # node -> current cost
+
+    while True:
+        if frontier.isEmpty():
+            raise Exception("Search Failed")
+
+        node = frontier.pop()
+
+        is_new_state = node['state'] not in explored_nodes
+
+        if is_new_state or node['cost'] < explored_nodes[node['state']]:
+            explored_nodes[node['state']] = node['cost']
+            # goal state test
+            if problem.isGoalState(node['state']):
+                return get_path(node)
+            else:
+                children = problem.getSuccessors(node['state'])
+                for child in children:
+                    new_cost = child[2] + node['cost']
+                    child_node = {'state': child[0], 'action': child[1], 'cost': new_cost, 'parent': node}
+                    h_result = heuristic(child_node['state'], problem)
+                    frontier.update(child_node, new_cost)
+    return []
+
+
 def get_path(node):
     actions = []
     # traverse back to the parent
@@ -111,129 +207,6 @@ def unit_cost_search(problem, frontier_data_structure):
 
         explored_state.add(node['state'])
     return []
-
-def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first.
-    """
-    return unit_cost_search(problem, util.Stack())
-
-
-def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    return unit_cost_search(problem, util.Queue())
-
-
-def uniformCostSearch(problem):
-    """Search the node of least total cost first.
-        read textbook p167
-
-    node = {'state': problem.getStartState(), 'cost': 0}
-    if problem.isGoalState(node['state']):
-        return []
-    frontier = util.PriorityQueue()
-    frontier.push(node, 0)
-
-    explored_state = set()
-    explored_path_cost = {}
-
-    while True:
-        if frontier.isEmpty():
-            raise Exception("Search Failed")
-        node = frontier.pop()
-
-        # goal state test
-        if problem.isGoalState(node['state']):
-            return get_path(node)
-
-        children = problem.getSuccessors(node['state'])
-        for child in children:
-            child_state = child[0]
-            child_path_cost = child[2]
-            child_state_explored = child_state in explored_state
-            if (not child_state_explored) or child_path_cost < explored_path_cost[child_state]:
-                if not child_state_explored:
-                    explored_state.add(child_state)
-                explored_path_cost[child_state] = child_path_cost
-
-                child_node = {'state': child_state, 'action': child[1], 'cost': child_path_cost, 'parent': node}
-                frontier.push(child_node, child_path_cost)
-    """
-    node = {'state': problem.getStartState(), 'cost': 0}
-    if problem.isGoalState(node['state']):
-        return []
-
-    frontier = util.PriorityQueue()
-    frontier.push(node, 0)
-
-    explored_nodes = {}  # node -> current cost
-
-    while True:
-        if frontier.isEmpty():
-            raise Exception("Search Failed because frontier is empty")
-        node = frontier.pop()
-
-        child_state_explored = node['state'] in explored_nodes
-
-        if (not child_state_explored) or node['cost'] < explored_nodes[node['state']]:
-
-            explored_nodes[node['state']] = node['cost']
-            # goal state test
-            if problem.isGoalState(node['state']):
-                return get_path(node)
-            else:
-                children = problem.getSuccessors(node['state'])
-                for child in children:
-                    child_node = {'state': node['state'], 'action': child[1], 'cost': child[2], 'parent': node}
-                    frontier.update(child_node, child[2])
-    return []
-
-def nullHeuristic(state, problem=None):
-    """
-    A heuristic function estimates the cost from the current state to the nearest
-    goal in the provided SearchProblem.  This heuristic is trivial.
-    """
-    return 0
-
-def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-
-    node = {'state': problem.getStartState(), 'cost': 0}
-    if problem.isGoalState(node['state']):
-        return []
-    frontier = util.PriorityQueue()
-    frontier.push(node, 0)
-
-    explored_state = set()
-    explored_path_cost = {}
-
-    while True:
-        if frontier.isEmpty():
-            raise Exception("Search Failed")
-        node = frontier.pop()
-        if problem.isGoalState(node['state']):
-            actions = []
-            # traverse back to the parent
-            while 'parent' in node:
-                actions.append(node['action'])
-                node = node['parent']
-            actions.reverse()
-            return actions
-
-        children = problem.getSuccessors(node['state'])
-        for child in children:
-            child_state = child[0]
-            child_path_cost = child[2]
-            child_state_explored = child_state in explored_state
-            if (not child_state_explored) or child_path_cost < explored_path_cost[child_state]:
-                if not child_state_explored:
-                    explored_state.add(child_state)
-                explored_path_cost[child_state] = child_path_cost
-
-                child_node = {'state': child_state, 'action': child[1], 'cost': child_path_cost, 'parent': node}
-                h_result = heuristic(child_state, problem)
-                frontier.push(child_node, child_path_cost + h_result)
 
 # Abbreviations
 bfs = breadthFirstSearch
