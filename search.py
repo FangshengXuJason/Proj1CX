@@ -127,43 +127,7 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first.
         read textbook p167
-    """
-    """
-    node = {'state': problem.getStartState(), 'cost': 0}
-    if problem.isGoalState(node['state']):
-        return []
-    frontier = util.PriorityQueue()
-    frontier.push(node, node['cost'])  # cost: 0
 
-    explored_state = set()
-    explored_state_cost = {}
-
-    while True:
-        if frontier.isEmpty():
-            raise Exception("Search Failed")
-        node = frontier.pop()
-
-        # goal state test
-        if problem.isGoalState(node['state']):
-            return get_path(node)
-
-        state_is_explored = node['state'] in explored_state
-
-        if (not state_is_explored) or (state_is_explored and explored_state_cost[node['state']] > node['cost']):
-            children = problem.getSuccessors(node['state'])
-            for child in children:
-
-                child_node = \
-                        {'state': child[0], 'action': child[1],
-                         'cost': child[2], 'parent': node}
-                frontier.push(child_node, node['cost'])
-
-        if not state_is_explored:
-            explored_state.add(node['state'])
-        elif explored_state_cost[node['state']] > node['cost']:
-            explored_state_cost[node['state']] = node['cost']
-
-    """
     node = {'state': problem.getStartState(), 'cost': 0}
     if problem.isGoalState(node['state']):
         return []
@@ -194,6 +158,34 @@ def uniformCostSearch(problem):
 
                 child_node = {'state': child_state, 'action': child[1], 'cost': child_path_cost, 'parent': node}
                 frontier.push(child_node, child_path_cost)
+    """
+    node = {'state': problem.getStartState(), 'cost': 0}
+    if problem.isGoalState(node['state']):
+        return []
+    frontier = util.PriorityQueue()
+    frontier.push(node, 0)
+
+    explored_state = set()
+    explored_path_cost = {}
+
+    while True:
+        if frontier.isEmpty():
+            raise Exception("Search Failed")
+        node = frontier.pop()
+
+        child_state_explored = node['state'] in explored_state
+
+        if (not child_state_explored) or node['cost'] < explored_path_cost[node['cost']]:
+            explored_state.add(node['cost'])
+            explored_path_cost[node['state']] = node['cost']
+            # goal state test
+            if problem.isGoalState(node['state']):
+                return get_path(node)
+            else:
+                children = problem.getSuccessors(node['state'])
+                for child in children:
+                    child_node = {'state': node['state'], 'action': child[1], 'cost': child[2], 'parent': node}
+                    frontier.update(child_node, child[2])
 
 def nullHeuristic(state, problem=None):
     """
