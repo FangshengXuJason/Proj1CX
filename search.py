@@ -121,7 +121,6 @@ def depthFirstSearch(problem):
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    # This is translated from textbook p176
     return unit_cost_search(problem, util.Queue())
 
 
