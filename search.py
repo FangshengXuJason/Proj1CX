@@ -99,7 +99,7 @@ def unit_cost_search(problem, frontier_data_structure):
         if problem.isGoalState(node['state']):
             return get_path(node)
 
-        # can't explore duplicate node
+        # can't explore duplicate node in the frontier
         if node['state'] not in explored_state:
             children = problem.getSuccessors(node['state'])
             for child in children:
@@ -128,7 +128,42 @@ def uniformCostSearch(problem):
     """Search the node of least total cost first.
         read textbook p167
     """
+    """
+    node = {'state': problem.getStartState(), 'cost': 0}
+    if problem.isGoalState(node['state']):
+        return []
+    frontier = util.PriorityQueue()
+    frontier.push(node, node['cost'])  # cost: 0
 
+    explored_state = set()
+    explored_state_cost = {}
+
+    while True:
+        if frontier.isEmpty():
+            raise Exception("Search Failed")
+        node = frontier.pop()
+
+        # goal state test
+        if problem.isGoalState(node['state']):
+            return get_path(node)
+
+        state_is_explored = node['state'] in explored_state
+
+        if (not state_is_explored) or (state_is_explored and explored_state_cost[node['state']] > node['cost']):
+            children = problem.getSuccessors(node['state'])
+            for child in children:
+
+                child_node = \
+                        {'state': child[0], 'action': child[1],
+                         'cost': child[2], 'parent': node}
+                frontier.push(child_node, node['cost'])
+
+        if not state_is_explored:
+            explored_state.add(node['state'])
+        elif explored_state_cost[node['state']] > node['cost']:
+            explored_state_cost[node['state']] = node['cost']
+
+    """
     node = {'state': problem.getStartState(), 'cost': 0}
     if problem.isGoalState(node['state']):
         return []
@@ -142,14 +177,10 @@ def uniformCostSearch(problem):
         if frontier.isEmpty():
             raise Exception("Search Failed")
         node = frontier.pop()
+
+        # goal state test
         if problem.isGoalState(node['state']):
-            actions = []
-            # traverse back to the parent
-            while 'parent' in node:
-                actions.append(node['action'])
-                node = node['parent']
-            actions.reverse()
-            return actions
+            return get_path(node)
 
         children = problem.getSuccessors(node['state'])
         for child in children:
