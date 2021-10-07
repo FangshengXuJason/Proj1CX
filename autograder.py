@@ -14,7 +14,7 @@
 
 # imports from python standard library
 import grading
-# import imp
+import imp
 import optparse
 import os
 import re

@@ -73,120 +73,62 @@ def tinyMazeSearch(problem):
     return  [s, s, w, s, w, w, s, w]
 
 
-def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first.
+def get_path(node):
+    actions = []
+    # traverse back to the parent
+    while 'parent' in node:
+        actions.append(node['action'])
+        node = node['parent']
+    actions.reverse()
+    return actions
 
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
 
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    """
-    "*** YOUR CODE HERE ***"
+def unit_cost_search(problem, frontier_data_structure):
     node = {'state': problem.getStartState(), 'cost': 0}
     if problem.isGoalState(node['state']):
         return []
-    frontier = util.Stack()
+    frontier = frontier_data_structure
     frontier.push(node)
     explored_state = set()
 
     while True:
         if frontier.isEmpty():
-            raise Exception("Search Failed")
+            raise Exception("No Goal Found")
         node = frontier.pop()
+        # goal state test
+        if problem.isGoalState(node['state']):
+            return get_path(node)
+
+        # can't explore duplicate node
+        if node['state'] not in explored_state:
+            children = problem.getSuccessors(node['state'])
+            for child in children:
+                if child[0] not in explored_state:
+                    child_node = \
+                        {'state': child[0], 'action': child[1],
+                         'cost': child[2], 'parent': node}
+                    frontier.push(child_node)
+
         explored_state.add(node['state'])
-        children = problem.getSuccessors(node['state'])
-        for child in children:
-            child_state = child[0]
-            if child_state not in explored_state:
-                child_node = {'state': child_state, 'action': child[1], 'cost': child[2], 'parent': node}
-                if problem.isGoalState(child_state):
-                    actions = []
-                    node = child_node
-                    # traverse back to the parent
-                    while 'parent' in node:
-                        actions.append(node['action'])
-                        node = node['parent']
-                    actions.reverse()
-                    return actions
-                frontier.push(child_node)
+
+
+def depthFirstSearch(problem):
+    """
+    Search the deepest nodes in the search tree first.
+    """
+    return unit_cost_search(problem, util.Stack())
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    '''
     # This is translated from textbook p176
-    node = {'state': problem.getStartState(), 'cost': 0}
-    if problem.isGoalState(node['state']):
-        return []
-    frontier = util.Queue()
-    frontier.push(node)
-    explored_state = set()
-
-    while True:
-        if frontier.isEmpty():
-            raise Exception("Search Failed")
-        node = frontier.pop()
-        explored_state.add(node['state'])
-        children = problem.getSuccessors(node['state'])
-        for child in children:
-            child_state = child[0]
-            if child_state not in explored_state:
-                child_node = {'state': child_state, 'action': child[1], 'cost': child[2], 'parent': node}
-                if problem.isGoalState(child_state):
-                    actions = []
-                    node = child_node
-                    # traverse back to the parent
-                    while 'parent' in node:
-                        actions.append(node['action'])
-                        node = node['parent']
-                    actions.reverse()
-                    return actions
-                frontier.push(child_node)
-    '''
-    node = {'state': problem.getStartState(), 'cost': 0}
-    if problem.isGoalState(node['state']):
-        return []
-    frontier = util.Queue()
-    frontier.push(node)
-    explored_state = set()
-
-    while True:
-        if frontier.isEmpty():
-            raise Exception("Search Failed")
-        node = frontier.pop()
-        # problem
-        if problem.isGoalState(node['state']):
-            actions = []
-            # traverse back to the parent
-            while 'parent' in node:
-                actions.append(node['action'])
-                node = node['parent']
-            actions.reverse()
-            return actions
-        # problem
-
-        explored_state.add(node['state'])
-
-        children = problem.getSuccessors(node['state'])
-        for child in children:
-            child_state = child[0]
-            if child_state not in explored_state:
-                child_node = {'state': child_state, 'action': child[1], 'cost': child[2], 'parent': node}
-                frontier.push(child_node)
+    return unit_cost_search(problem, util.Queue())
 
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first.
         read textbook p167
     """
-    "*** YOUR CODE HERE ***"
 
     node = {'state': problem.getStartState(), 'cost': 0}
     if problem.isGoalState(node['state']):
@@ -269,6 +211,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 child_node = {'state': child_state, 'action': child[1], 'cost': child_path_cost, 'parent': node}
                 h_result = heuristic(child_state, problem)
                 frontier.push(child_node, child_path_cost + h_result)
+
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
