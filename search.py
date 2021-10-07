@@ -110,7 +110,7 @@ def unit_cost_search(problem, frontier_data_structure):
                     frontier.push(child_node)
 
         explored_state.add(node['state'])
-
+    return []
 
 def depthFirstSearch(problem):
     """
@@ -162,22 +162,22 @@ def uniformCostSearch(problem):
     node = {'state': problem.getStartState(), 'cost': 0}
     if problem.isGoalState(node['state']):
         return []
+
     frontier = util.PriorityQueue()
     frontier.push(node, 0)
 
-    explored_state = set()
-    explored_path_cost = {}
+    explored_nodes = {}  # node -> current cost
 
     while True:
         if frontier.isEmpty():
-            raise Exception("Search Failed")
+            raise Exception("Search Failed because frontier is empty")
         node = frontier.pop()
 
-        child_state_explored = node['state'] in explored_state
+        child_state_explored = node['state'] in explored_nodes
 
-        if (not child_state_explored) or node['cost'] < explored_path_cost[node['cost']]:
-            explored_state.add(node['cost'])
-            explored_path_cost[node['state']] = node['cost']
+        if (not child_state_explored) or node['cost'] < explored_nodes[node['state']]:
+
+            explored_nodes[node['state']] = node['cost']
             # goal state test
             if problem.isGoalState(node['state']):
                 return get_path(node)
@@ -186,6 +186,7 @@ def uniformCostSearch(problem):
                 for child in children:
                     child_node = {'state': node['state'], 'action': child[1], 'cost': child[2], 'parent': node}
                     frontier.update(child_node, child[2])
+    return []
 
 def nullHeuristic(state, problem=None):
     """
