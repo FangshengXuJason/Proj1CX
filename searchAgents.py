@@ -285,9 +285,15 @@ class CornersProblem(search.SearchProblem):
             if not startingGameState.hasFood(*corner):
                 print('Warning: no food in corner ' + str(corner))
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
-        # Please add any code here which you would like to use
-        # in initializing the problem
-        "*** YOUR CODE HERE ***"
+
+        "*** STUDENT'S CODE HERE ***"
+        self.startingGameState = startingGameState
+
+        corners_visited = [False, False, False, False]
+        for x in range(4):
+            if self.startingPosition == self.corners[x]:
+                corners_visited[x] = True
+        self.startingState = (self.startingPosition, tuple(corners_visited))
 
     def getStartState(self):
         """
@@ -295,14 +301,18 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.startingState
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        corners_visited = state[1]
+        for corner in corners_visited:
+            if not corner:
+                return False
+        return True
 
     def getSuccessors(self, state):
         """
@@ -319,12 +329,20 @@ class CornersProblem(search.SearchProblem):
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
+            x,y = state[0] # position
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
 
-            "*** YOUR CODE HERE ***"
+            if not hitsWall:
+                next_position = (nextx, nexty)
+                corners_visited = list(state[1])
+                for x in range(4):
+                    if next_position == self.corners[x]:
+                        corners_visited[x] = True
+                cost = 1
+                current_state = (next_position, tuple(corners_visited))
+                successors.append((current_state, action, cost))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
