@@ -177,6 +177,7 @@ def unit_cost_search(problem, frontier_data_structure):
 
 def consider_cost_search(problem, heuristic=nullHeuristic):
 
+
     node = {'state': problem.getStartState(), 'cost': 0}
     if problem.isGoalState(node['state']):
         return []

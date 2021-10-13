@@ -332,8 +332,8 @@ class CornersProblem(search.SearchProblem):
             x,y = state[0] # position
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-            hitsWall = self.walls[nextx][nexty]
 
+            hitsWall = self.walls[nextx][nexty]
             if not hitsWall:
                 next_position = (nextx, nexty)
                 corners_visited = list(state[1])
@@ -480,9 +480,15 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
-    position, foodGrid = state
-    "*** YOUR CODE HERE ***"
+    currentPosition, foodGrid = state
+    heuristic = []
+    for pos in foodGrid.asList():
+        h_val = mazeDistance(currentPosition, pos, problem.startingGameState)
+        heuristic.append(h_val)
+    if len(heuristic):
+        return max(heuristic)
     return 0
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
