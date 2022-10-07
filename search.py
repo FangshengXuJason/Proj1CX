@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -152,6 +152,8 @@ def unit_cost_search(problem, frontier_data_structure):
         return []
     frontier = frontier_data_structure
     frontier.push(node)
+    # {'state': child[0], 'action': child[1],
+    #                      'cost': child[2], 'parent': node}
     explored_state = set()
 
     while True:
@@ -160,16 +162,19 @@ def unit_cost_search(problem, frontier_data_structure):
         node = frontier.pop()
         # goal state test
         if problem.isGoalState(node['state']):
-            return get_path(node)
+            return get_path(node) # backtrack
 
         # can't explore duplicate node in the frontier
         if node['state'] not in explored_state:
-            children = problem.getSuccessors(node['state'])
+            children = problem.getSuccessors(node['state']) # return list[next vlaid moves]
             for child in children:
-                if child[0] not in explored_state:
+                print(child);
+
+                if child[0] not in explored_state: # state
+                    print(child[1]); # child node is S5, parent is S1
                     child_node = \
                         {'state': child[0], 'action': child[1],
-                         'cost': child[2], 'parent': node}
+                        'cost': child[2], 'parent': node} # reference-> S1
                     frontier.push(child_node)
 
         explored_state.add(node['state'])
